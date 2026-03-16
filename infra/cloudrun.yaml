@@ -1,0 +1,61 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: golden-hour-backend
+  annotations:
+    run.googleapis.com/launch-stage: BETA
+spec:
+  template:
+    metadata:
+      annotations:
+        # No cold starts on demo day
+        autoscaling.knative.dev/minScale: "1"
+        autoscaling.knative.dev/maxScale: "5"
+    spec:
+      containerConcurrency: 80
+      timeoutSeconds: 300
+      containers:
+        - image: gcr.io/PROJECT_ID/golden-hour-backend:latest
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              memory: 2Gi
+              cpu: "2"
+          env:
+            # All secrets pulled from Secret Manager — nothing hardcoded
+            - name: GEMINI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: gemini-api-key
+                  key: latest
+            - name: GEMINI_LIVE_MODEL
+              value: gemini-live-2.5-flash-native-audio
+            - name: ELEVENLABS_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: elevenlabs-api-key
+                  key: latest
+            - name: ELEVENLABS_VOICE_ID
+              valueFrom:
+                secretKeyRef:
+                  name: elevenlabs-voice-id
+                  key: latest
+            - name: GOOGLE_CLOUD_PROJECT
+              valueFrom:
+                secretKeyRef:
+                  name: gcp-project
+                  key: latest
+            - name: MAPS_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: maps-api-key
+                  key: latest
+            - name: FIRESTORE_COLLECTION
+              value: incidents
+            - name: PUBSUB_TOPIC
+              value: er-notifications
+            - name: VOICE_MODE
+              value: elevenlabs
+            - name: DEMO_MODE
+              value: "false"
