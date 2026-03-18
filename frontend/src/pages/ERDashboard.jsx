@@ -150,19 +150,52 @@ export default function ERDashboard() {
 
   // ── Demo replay ───────────────────────────────────────────────────────────
   const startDemoReplay = async () => {
-    try {
-      const res = await fetch(`${BACKEND}/demo/simulate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ speed: 1.0 }),
-      });
-      const { session_id } = await res.json();
-      setSessionId(session_id);
-      setStatus("Demo replay started…");
-      pollRef.current = setInterval(() => pollIncident(session_id), 3000);
-    } catch (err) {
-      setStatus(`Demo error: ${err.message}`);
-    }
+    setStatus("Demo replay started…");
+    setTranscript([]);
+
+    // Step 1: caller transcript appears
+    setTimeout(() => {
+      setTranscript(["Caller: There's been a bad car accident at Market and 5th Street! Two people are hurt — one woman is unconscious with bleeding from her head, the other has a broken arm. Please help!"]);
+    }, 800);
+
+    // Step 2: dispatcher responds
+    setTimeout(() => {
+      setTranscript(prev => [...prev, "Dispatcher: I hear you. Stay calm — help is on the way. I'm dispatching an ambulance now and routing to SF General. Keep the unconscious woman still and apply pressure to the head wound."]);
+      setStatus("Dispatching emergency services…");
+    }, 2500);
+
+    // Step 3: incident data populates
+    setTimeout(() => {
+      const mockIncident = {
+        caller_name: "Jane (witness)",
+        victim_count: 2,
+        injuries: ["Head trauma / unconscious", "Fractured arm"],
+        severity_score: 8,
+        recommended_hospital: "SF General Hospital",
+        eta_minutes: 4,
+        first_aid_instructions: [
+          "Apply firm pressure to head wound with clean cloth",
+          "Do NOT move the unconscious victim — possible spinal injury",
+          "Keep victim warm and still until paramedics arrive",
+          "Confirm breathing every 30 seconds",
+        ],
+        session_id: "demo-session",
+      };
+      setIncident(mockIncident);
+      setStatus("Ambulance ETA: 4 min — trauma bay being prepared");
+      animateAmbulance(INCIDENT_POS, 4);
+    }, 3500);
+
+    // Step 4: more transcript
+    setTimeout(() => {
+      setTranscript(prev => [
+        ...prev,
+        "Dispatcher: Ambulance AMB-042 is 4 minutes away. Is she still breathing?",
+        "Caller: Yes, she's breathing but not responding.",
+        "Dispatcher: Good. Keep the cloth pressed firmly on the wound. Don't let her head move.",
+      ]);
+      setStatus("Ambulance ETA: 4 min — stay on the line");
+    }, 5000);
   };
 
   // ── Alert specialist ──────────────────────────────────────────────────────
