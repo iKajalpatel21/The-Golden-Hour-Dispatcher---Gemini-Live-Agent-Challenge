@@ -128,7 +128,7 @@ GEMINI_TOOLS = [
 # We try to include it; if the installed SDK rejects it we fall back without it
 # so tests and the rest of the pipeline still work.
 _BASE_CONFIG_KWARGS: dict = dict(
-    response_modalities=["AUDIO", "TEXT"],
+    response_modalities=["AUDIO"],
     speech_config=types.SpeechConfig(
         voice_config=types.VoiceConfig(
             prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name="Charon")
@@ -247,11 +247,12 @@ async def _run_bidirectional(websocket, session, session_id: str):
                         media=types.Blob(data=img, mime_type=mime)
                     )
 
-                elif mtype == "text":
+                elif mtype == "text" or mtype == "text_query":
+                    text = msg.get("data") or msg.get("text", "")
                     await session.send_client_content(
                         turns=types.Content(
                             role="user",
-                            parts=[types.Part(text=msg["data"])],
+                            parts=[types.Part(text=text)],
                         ),
                         turn_complete=True,
                     )

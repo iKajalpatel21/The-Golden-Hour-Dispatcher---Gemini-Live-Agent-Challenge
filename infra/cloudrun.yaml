@@ -8,7 +8,6 @@ spec:
   template:
     metadata:
       annotations:
-        # No cold starts on demo day
         autoscaling.knative.dev/minScale: "1"
         autoscaling.knative.dev/maxScale: "5"
     spec:
@@ -23,29 +22,29 @@ spec:
               memory: 2Gi
               cpu: "2"
           env:
-            # All secrets pulled from Secret Manager — nothing hardcoded
             - name: GEMINI_API_KEY
               valueFrom:
                 secretKeyRef:
                   name: gemini-api-key
                   key: latest
             - name: GEMINI_LIVE_MODEL
-              value: gemini-live-2.5-flash-native-audio
+              value: gemini-2.5-flash-native-audio-latest
+            - name: GEMINI_ADK_MODEL
+              value: gemini-2.5-flash
+            - name: GROQ_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: groq-api-key
+                  key: latest
             - name: ELEVENLABS_API_KEY
               valueFrom:
                 secretKeyRef:
                   name: elevenlabs-api-key
                   key: latest
             - name: ELEVENLABS_VOICE_ID
-              valueFrom:
-                secretKeyRef:
-                  name: elevenlabs-voice-id
-                  key: latest
+              value: EXAVITQu4vr4xnSDxMaL
             - name: GOOGLE_CLOUD_PROJECT
-              valueFrom:
-                secretKeyRef:
-                  name: gcp-project
-                  key: latest
+              value: PROJECT_ID
             - name: MAPS_API_KEY
               valueFrom:
                 secretKeyRef:
@@ -58,4 +57,4 @@ spec:
             - name: VOICE_MODE
               value: elevenlabs
             - name: DEMO_MODE
-              value: "false"
+              value: "true"
